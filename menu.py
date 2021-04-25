@@ -58,7 +58,7 @@ class ChoosePartition:
         self.screen.border(0)
         self.screen.addstr(
             2, 2,
-            "Press 'm' to mount and 'u' to unmount and 'e' to unmount whole drive" + str(x))
+            "Press 'm' to mount and 'u' to unmount and 'e' to unmount the whole drive")
 
         partn = 0
         i = 0
