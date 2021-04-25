@@ -14,7 +14,7 @@ cd ~/.config/ranger
 git clone https://github.com/SL-RU/ranger_udisk_menu
 ```
 
-Then you need to add to `commands.py` line: 
+Then you need to add to `~/.config/ranger/commands.py` line: 
 
 ```Python3
 from ranger_udisk_menu.mounter import mount
