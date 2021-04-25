@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # coding: utf-8
 # License: The MIT License
-# Author: Alexander Lutsai <s.lyra@ya.ru>
+# Author: Alexander Lutsai <sl_ru@live.com>
 # Year: 2021
 # Description: This script draws menu to choose, mount and unmount drives
 
