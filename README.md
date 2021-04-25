@@ -1,6 +1,8 @@
 # Ranger udisk menu
 This script draws menu to mount and unmount partitions using udisksctl and ncurses
 
+![Screenshot](screenshot.png)
+
 # Requirements
 - python3
 - udisks2 (for udisksctl)
