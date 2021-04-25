@@ -58,7 +58,7 @@ class ChoosePartition:
         self.screen.border(0)
         self.screen.addstr(
             2, 2,
-            "Press 'm' to mount and 'u' to unmount and 'e' to unmount whole drive")
+            "Press 'm' to mount and 'u' to unmount and 'e' to unmount whole drive" + str(x))
 
         partn = 0
         i = 0
@@ -106,21 +106,20 @@ class ChoosePartition:
     def select(self):
         sel = None
         x = 0
-        while x != ord('q'):
+        # quit when pressed `q` or `Esc` or `Ctrl+g`
+        while x != ord('q') and x != 27 and x != 7:
             self._select_print(x)
             x = self.screen.getch()
-
             if x == ord('j') or x == 66 or x == 14:
+                # down
                 self.selected_partn += 1
                 if self.selected_partn > self.partn:
                     self.selected_partn = self.partn
             elif x == ord('k') or x == 65 or x == 16:
+                # up
                 self.selected_partn -= 1
                 if self.selected_partn <= 0:
                     self.selected_partn = 1
-            elif x == 10:
-                sel = self._get_part_by_partn()
-                break
             elif x == ord('e'):
                 sel = self._eject_all()
             elif x == ord('m'):
@@ -134,7 +133,6 @@ class ChoosePartition:
             elif x == ord('g') or x == ord('r'):
                 self._read_partitions()
         curses.endwin()
-        return sel
 
     def _udisk_mount_unmount(self, cmd, dev):
         r = ""
