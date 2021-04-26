@@ -88,7 +88,9 @@ class ChoosePartition:
         self.screen.addstr(2 + i, 4, s, curses.color_pair(is_selected))
 
     def _select_print_block_device(self, bd, i):
-        if 'model' not in bd or 'size' not in bd or 'name' not in bd:
+        if not ('model' in bd and
+                'size' in bd or
+                'name' in bd):
             raise Exception('Wrong lsblk json format. ' +
                             'No model, size or name in blockdevice')
 
