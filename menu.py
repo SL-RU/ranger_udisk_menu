@@ -6,6 +6,7 @@
 # Description: This script draws menu to choose, mount and unmount drives
 
 import curses
+import curses.ascii
 import subprocess
 import json
 
@@ -22,6 +23,9 @@ class ChoosePartition:
         self.screen = curses.initscr()
         curses.start_color()
         curses.curs_set(0)
+        curses.noecho()
+        curses.cbreak()
+        self.screen.keypad(True)
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
         self.selected_partn = 1
         self._read_partitions()
@@ -62,8 +66,13 @@ class ChoosePartition:
 
         partn = 0
         i = 0
+        if 'blockdevices' not in self.blkinfo:
+            raise Exception('Wrong lsblk json format. No field "blockdevices"')
         for bd in self.blkinfo['blockdevices']:
             i += 1
+            if 'model' not in bd or 'size' not in bd or 'name' not in bd:
+                raise Exception(
+                    'Wrong lsblk json format. No model, size or name in the blockdevice')
             model = bd['model'] if bd['model'] is not None else ""
             size = bd['size'] if bd['size'] is not None else ""
             self.screen.addstr(2 + i, 2, bd['name'] + " " + model + " " + size)
@@ -73,8 +82,16 @@ class ChoosePartition:
                 i += 1
                 partn += 1
                 is_selected = 0 if self.selected_partn != partn else 1
-                lab = part['label'] if part['label'] is not None else part['partlabel']
-                lab = lab if lab is not None else part['parttypename']
+                lab = ""
+                if 'label' not in part and part['label'] is not None:
+                    lab = part['label']
+                elif 'partlabel' not in part and part['partlabel'] is not None:
+                    lab = part['partlabel']
+                elif 'parttypename' not in part and part['parttypename'] is not None:
+                    lab = part['parttypename']
+
+                if 'mountpoint' not in part:
+                    raise Exception('Wrong lsblk json format. No mountpoint')
                 mp = part['mountpoint'] if part['mountpoint'] is not None else "Not mounted"
 
                 s = "{name:<12} {size:<8} {label:<16} {mp}".format(
@@ -107,15 +124,15 @@ class ChoosePartition:
         sel = None
         x = 0
         # quit when pressed `q` or `Esc` or `Ctrl+g`
-        while x != ord('q') and x != 27 and x != 7:
+        while x not in (ord('q'), curses.ascii.ESC, curses.ascii.BEL):
             self._select_print(x)
             x = self.screen.getch()
-            if x == ord('j') or x == 66 or x == 14:
+            if x in (ord('j'), curses.ascii.SO, curses.KEY_DOWN):
                 # down
                 self.selected_partn += 1
                 if self.selected_partn > self.partn:
                     self.selected_partn = self.partn
-            elif x == ord('k') or x == 65 or x == 16:
+            elif x in (ord('k'), curses.ascii.DLE, curses.KEY_UP):
                 # up
                 self.selected_partn -= 1
                 if self.selected_partn <= 0:
