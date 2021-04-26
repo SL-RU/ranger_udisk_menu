@@ -16,7 +16,10 @@ class ChoosePartition:
     screen = None
     selected_partn = 1
     partn = 1
-
+    help_message = [("Press 'm' to mount, " +
+                     "'u' to unmount, " +
+                     "'g' to refresh"),
+                    "  and 'e' to unmount the whole drive"]
     message = ""
 
     def __init__(self):
@@ -57,12 +60,47 @@ class ChoosePartition:
                     return part
         return None
 
+    def _select_print_part(self, part, is_selected, i):
+        if not ('mountpoint' in part and
+                'name' in part and
+                'size' in part):
+            raise Exception('Wrong lsblk json format.' +
+                            'No mountpoint, name or size in the partition')
+        label = ""
+        label_fields = ['label', 'partlabel', 'parttypename', 'fstype']
+        for f in label_fields:
+            if f not in part:
+                continue
+            if part[f] is not None:
+                label = part[f]
+                break
+
+        mp = "Not mounted"
+        if part['mountpoint'] is not None:
+            mp = part['mountpoint']
+
+        s = "{name:<12} {size:<8} {label:<16} {mp}".format(
+            name=part['name'] if part['name'] is not None else "None",
+            label=label if label is not None else "None",
+            size=part['size'] if part['size'] is not None else "None",
+            mp=mp
+        )
+        self.screen.addstr(2 + i, 4, s, curses.color_pair(is_selected))
+
+    def _select_print_block_device(self, bd, i):
+        if 'model' not in bd or 'size' not in bd or 'name' not in bd:
+            raise Exception('Wrong lsblk json format. ' +
+                            'No model, size or name in blockdevice')
+
+        model = bd['model'] if bd['model'] is not None else ""
+        size = bd['size'] if bd['size'] is not None else ""
+        self.screen.addstr(2 + i, 2, bd['name'] + " " + model + " " + size)
+
     def _select_print(self, x):
         self.screen.clear()
         self.screen.border(0)
-        self.screen.addstr(
-            2, 2,
-            "Press 'm' to mount and 'u' to unmount and 'e' to unmount the whole drive")
+        self.screen.addstr(1, 2, self.help_message[0])
+        self.screen.addstr(2, 2, self.help_message[1])
 
         partn = 0
         i = 0
@@ -70,41 +108,20 @@ class ChoosePartition:
             raise Exception('Wrong lsblk json format. No field "blockdevices"')
         for bd in self.blkinfo['blockdevices']:
             i += 1
-            if 'model' not in bd or 'size' not in bd or 'name' not in bd:
-                raise Exception(
-                    'Wrong lsblk json format. No model, size or name in the blockdevice')
-            model = bd['model'] if bd['model'] is not None else ""
-            size = bd['size'] if bd['size'] is not None else ""
-            self.screen.addstr(2 + i, 2, bd['name'] + " " + model + " " + size)
+            bd_selected = False
+            bd_i = i
+            self._select_print_block_device(bd, bd_i)
             if 'children' not in bd:
                 continue
             for part in bd['children']:
                 i += 1
                 partn += 1
                 is_selected = 0 if self.selected_partn != partn else 1
-                lab = ""
-                if 'label' not in part and part['label'] is not None:
-                    lab = part['label']
-                elif 'partlabel' not in part and part['partlabel'] is not None:
-                    lab = part['partlabel']
-                elif 'parttypename' not in part and part['parttypename'] is not None:
-                    lab = part['parttypename']
-                elif 'fstype' not in part and part['fstype'] is not None:
-                    lab = part['fstype']
-
-                if 'mountpoint' not in part:
-                    raise Exception('Wrong lsblk json format. No mountpoint')
-                mp = part['mountpoint'] if part['mountpoint'] is not None else "Not mounted"
-
-                s = "{name:<12} {size:<8} {label:<16} {mp}".format(
-                    name=part['name'] if part['name'] is not None else "None",
-                    label=lab if lab is not None else "None",
-                    size=part['size'] if part['size'] is not None else "None",
-                    mp=mp
-                )
-                self.screen.addstr(2 + i, 4, s, curses.color_pair(is_selected))
-                self.screen.refresh()
-
+                if is_selected:
+                    bd_selected = True
+                self._select_print_part(part, is_selected, i)
+            if bd_selected:
+                self.screen.addstr(2 + bd_i, 1, ">")
         self.screen.addstr(2 + i + 2, 4, self.message)
 
     def _eject_all(self):
