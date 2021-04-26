@@ -89,6 +89,8 @@ class ChoosePartition:
                     lab = part['partlabel']
                 elif 'parttypename' not in part and part['parttypename'] is not None:
                     lab = part['parttypename']
+                elif 'fstype' not in part and part['fstype'] is not None:
+                    lab = part['fstype']
 
                 if 'mountpoint' not in part:
                     raise Exception('Wrong lsblk json format. No mountpoint')
