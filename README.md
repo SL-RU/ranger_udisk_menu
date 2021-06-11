@@ -34,3 +34,4 @@ Enter in ranger `:mount`, than will be shown menu. In this menu you can press:
 - `m` to mount selected partition
 - `u` to unmount selected partition
 - `e` to unmount all partitions of selected partition's drive
+- `ENTER` to open selected mountpoint in current tab

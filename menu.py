@@ -9,17 +9,19 @@ import curses
 import curses.ascii
 import subprocess
 import json
+import sys
 
 
 class ChoosePartition:
     blkinfo = None
     screen = None
     selected_partn = 1
+    selected_mountpoint = None
     partn = 1
     help_message = [("Press 'm' to mount, " +
                      "'u' to unmount, " +
                      "'g' to refresh"),
-                    "  and 'e' to unmount the whole drive"]
+                    "  and 'e' to unmount, 'enter' to cd"]
     message = ""
 
     def __init__(self):
@@ -75,9 +77,13 @@ class ChoosePartition:
                 label = part[f]
                 break
 
-        mp = "Not mounted"
+        mp = None
         if part['mountpoint'] is not None:
             mp = part['mountpoint']
+        if is_selected:
+            self.selected_mountpoint = mp
+        if mp is None:
+            mp = "Not mounted"
 
         s = "{name:<12} {size:<8} {label:<16} {mp}".format(
             name=part['name'] if part['name'] is not None else "None",
@@ -145,7 +151,8 @@ class ChoosePartition:
         sel = None
         x = 0
         # quit when pressed `q` or `Esc` or `Ctrl+g`
-        while x not in (ord('q'), curses.ascii.ESC, curses.ascii.BEL):
+        while x not in (ord('q'), curses.ascii.ESC,
+                        curses.ascii.BEL, curses.ascii.NL):
             self._select_print(x)
             x = self.screen.getch()
             if x in (ord('j'), curses.ascii.SO, curses.KEY_DOWN):
@@ -171,6 +178,9 @@ class ChoosePartition:
             elif x == ord('g') or x == ord('r'):
                 self._read_partitions()
         curses.endwin()
+        if self.selected_mountpoint is not None and x == curses.ascii.NL:
+            return self.selected_mountpoint
+        return ""
 
     def _udisk_mount_unmount(self, cmd, dev):
         r = ""
@@ -193,4 +203,10 @@ class ChoosePartition:
 
 if __name__ == "__main__":
     cp = ChoosePartition()
-    cp.select()
+    sel = cp.select()
+    # print(sel)
+    # print(len(sys.argv))
+    if len(sys.argv) >= 2:
+        # print(sys.argv[1])
+        with open(sys.argv[1], 'w') as f:
+            f.write(sel)

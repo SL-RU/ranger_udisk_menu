@@ -6,6 +6,8 @@
 # Description: This launches script that draws menu to choose, mount and unmount drives from ranger file manager
 
 from ranger.api.commands import Command
+import tempfile
+import os
 
 
 class mount(Command):
@@ -16,5 +18,12 @@ class mount(Command):
 
     def execute(self):
         """ Show menu to mount and unmount """
+        (f, p) = tempfile.mkstemp()
+        os.close(f)
         self.fm.execute_console(
-            "shell python3 ~/.config/ranger/ranger_udisk_menu/menu.py")
+            f"shell python3 ~/.config/ranger/ranger_udisk_menu/menu.py {p}")
+        with open(p, 'r') as f:
+            d = f.readline()
+            if os.path.exists(d):
+                self.fm.cd(d)
+        os.remove(p)
