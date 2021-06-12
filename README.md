@@ -34,4 +34,5 @@ Enter in ranger `:mount`, than will be shown menu. In this menu you can press:
 - `m` to mount selected partition
 - `u` to unmount selected partition
 - `e` to unmount all partitions of selected partition's drive
-- `ENTER` to open selected mountpoint in current tab
+- `p` to power off selected the selected partition's drive (also called safely remove). It can be done only when all partitions of the drive are unmounted
+- `ENTER` to open selected mountpoint in current tab of the ranger

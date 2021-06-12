@@ -18,10 +18,8 @@ class ChoosePartition:
     selected_partn = 1
     selected_mountpoint = None
     partn = 1
-    help_message = [("Press 'm' to mount, " +
-                     "'u' to unmount, " +
-                     "'g' to refresh"),
-                    "  and 'e' to unmount, 'enter' to cd"]
+    help_message = ["Press 'm' to mount, 'u' to unmount, 'g' to refresh",
+                    "  and 'e' to unmount, 'p' to poweroff drive, 'enter' to cd"]
     message = ""
 
     def __init__(self):
@@ -60,6 +58,17 @@ class ChoosePartition:
                 partn += 1
                 if self.selected_partn == partn:
                     return part
+        return None
+
+    def _get_drive_by_partn(self):
+        partn = 0
+        for bd in self.blkinfo['blockdevices']:
+            if 'children' not in bd:
+                continue
+            for part in bd['children']:
+                partn += 1
+                if self.selected_partn == partn:
+                    return bd
         return None
 
     def _select_print_part(self, part, is_selected, i):
@@ -175,6 +184,10 @@ class ChoosePartition:
                 sel = self._get_part_by_partn()
                 if sel is not None:
                     self.unmount(sel['path'])
+            elif x == ord('p'):
+                sel_drive = self._get_drive_by_partn()
+                if sel_drive is not None:
+                    self.poweroff(sel_drive['path'])
             elif x == ord('g') or x == ord('r'):
                 self._read_partitions()
         curses.endwin()
@@ -196,6 +209,9 @@ class ChoosePartition:
 
     def unmount(self, dev):
         self._udisk_mount_unmount("unmount", dev)
+
+    def poweroff(self, dev):
+        self._udisk_mount_unmount("power-off", dev)
 
     def mount(self, dev):
         self._udisk_mount_unmount("mount", dev)
