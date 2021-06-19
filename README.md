@@ -4,9 +4,9 @@ This script draws menu to mount and unmount partitions using udisksctl and ncurs
 ![Screenshot](screenshot.png)
 
 # Requirements
-- python3
+- python3.8 or newer
 - udisks2 (for udisksctl)
-- lsblk
+- lsblk 2.3 or newer
 
 # How to install
 Firstly you need to clone this repo to ranger config directory
@@ -36,3 +36,7 @@ Enter in ranger `:mount`, than will be shown menu. In this menu you can press:
 - `e` to unmount all partitions of selected partition's drive
 - `p` to power off selected the selected partition's drive (also called safely remove). It can be done only when all partitions of the drive are unmounted
 - `ENTER` to open selected mountpoint in current tab of the ranger
+
+# Troubles
+
+If there is trouble with permissions, then you need to create group `storage` and add your user to it. Then you need to update your Polkit or PolicyKit permissions like it shown [here: https://github.com/coldfix/udiskie/wiki/Permissions](https://github.com/coldfix/udiskie/wiki/Permissions)

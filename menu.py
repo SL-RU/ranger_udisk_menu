@@ -154,7 +154,7 @@ class ChoosePartition:
         if blk is None:
             return
         for part in blk['children']:
-            self.unmount(part['path'])
+            self.unmount(part)
 
     def select(self):
         sel = None
@@ -179,15 +179,15 @@ class ChoosePartition:
             elif x == ord('m'):
                 sel = self._get_part_by_partn()
                 if sel is not None:
-                    self.mount(sel['path'])
+                    self.mount(sel)
             elif x == ord('u'):
                 sel = self._get_part_by_partn()
                 if sel is not None:
-                    self.unmount(sel['path'])
+                    self.unmount(sel)
             elif x == ord('p'):
                 sel_drive = self._get_drive_by_partn()
                 if sel_drive is not None:
-                    self.poweroff(sel_drive['path'])
+                    self.poweroff(sel_drive)
             elif x == ord('g') or x == ord('r'):
                 self._read_partitions()
         curses.endwin()
@@ -207,14 +207,22 @@ class ChoosePartition:
             self.message = cmd + " error: " + r + str(e)
         self._read_partitions()
 
+    def get_drive_path(self, drive):
+        if 'path' not in drive:
+            drive['path'] = '/dev/' + drive['kname']
+        return drive['path']
+
     def unmount(self, dev):
-        self._udisk_mount_unmount("unmount", dev)
+        p = self.get_drive_path(dev)
+        self._udisk_mount_unmount("unmount", p)
 
     def poweroff(self, dev):
-        self._udisk_mount_unmount("power-off", dev)
+        p = self.get_drive_path(dev)
+        self._udisk_mount_unmount("power-off", p)
 
     def mount(self, dev):
-        self._udisk_mount_unmount("mount", dev)
+        p = self.get_drive_path(dev)
+        self._udisk_mount_unmount("mount", p)
 
 
 if __name__ == "__main__":
