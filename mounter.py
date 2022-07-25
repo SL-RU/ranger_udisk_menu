@@ -15,12 +15,13 @@ class mount(Command):
 
     Show menu to mount and unmount
     """
-
     def execute(self):
         """ Show menu to mount and unmount """
         (f, p) = tempfile.mkstemp()
         os.close(f)
-        self.fm.execute_console(f"shell python3 {os.getcwd()}/menu.py {p}")
+        self.fm.execute_console(
+            f"shell python3 {os.path.dirname(os.path.realpath(__file__))}/menu.py {p}"
+        )
         with open(p, 'r') as f:
             d = f.readline()
             if os.path.exists(d):
