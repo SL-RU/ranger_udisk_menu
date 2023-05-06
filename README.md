@@ -9,17 +9,11 @@ This script draws menu to mount and unmount partitions using udisksctl and ncurs
 - lsblk 2.3 or newer
 
 # How to install
-Firstly you need to clone this repo to the plugins directory of ranger
+You need to clone this repo to the plugins directory of ranger
 
 ```Bash
 cd ~/.config/ranger/plugins
 git clone https://github.com/SL-RU/ranger_udisk_menu
-```
-
-Then you need to add to `~/.config/ranger/commands.py` line: 
-
-```Python3
-from plugins.ranger_udisk_menu.mounter import mount
 ```
 
 Thats all
