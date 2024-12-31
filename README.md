@@ -1,3 +1,7 @@
+# DEPRECATED
+
+You can use now improved version with same functionality: https://github.com/SL-RU/mmtui?tab=readme-ov-file#ranger-file-manager
+
 # Ranger udisk menu
 This script draws menu to mount and unmount partitions using udisksctl and ncurses
 
